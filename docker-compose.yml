@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pw
+      MYSQL_DATABASE: vulnmart_auth
+      MYSQL_USER: vulnmart
+      MYSQL_PASSWORD: vulnmart_pw
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_pw"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: vulnmart
+      DB_PASSWORD: vulnmart_pw
+      DB_NAME: vulnmart_auth
+      JWT_SECRET: vulnmart-super-secret
+      OAUTH_CLIENT_ID: vulnmart-demo-client
+      OAUTH_CLIENT_SECRET: demo-client-secret
+    ports:
+      - "4000:4000"
+
+volumes:
+  mysql_data:

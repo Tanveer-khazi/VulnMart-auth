@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OAuth callback &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main>
+  <div class="card">
+    <h1>OAuth callback</h1>
+    <p>Received authorization code:</p>
+    <pre id="code">(none)</pre>
+    <button id="exchange">Exchange for access token</button>
+    <pre id="result"></pre>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const code = params.get('code');
+document.getElementById('code').textContent = code || '(none)';
+
+document.getElementById('exchange').addEventListener('click', async () => {
+  const result = document.getElementById('result');
+  try {
+    const res = await fetch('/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        client_id: 'vulnmart-demo-client',
+        code,
+        redirect_uri: window.location.origin + window.location.pathname,
+      }),
+    });
+    const data = await res.json();
+    result.textContent = JSON.stringify(data, null, 2);
+  } catch (err) {
+    result.textContent = err.message;
+  }
+});
+</script>
+</body>
+</html>

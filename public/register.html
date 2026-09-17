@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Register &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main>
+  <div class="card">
+    <h1>Create an account</h1>
+    <form id="register-form">
+      <label for="name">Name</label>
+      <input id="name" name="name" required />
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required />
+
+      <button type="submit">Register</button>
+    </form>
+    <div id="msg" class="msg"></div>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  const name = document.getElementById('name').value;
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try {
+    const data = await API.request('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ name, email, password }),
+    });
+    API.setToken(data.token);
+    showMessage(msg, 'Account created! Redirecting to your profile...', 'ok');
+    setTimeout(() => (window.location.href = '/profile.html'), 800);
+  } catch (err) {
+    showMessage(msg, err.message, 'error');
+  }
+});
+</script>
+</body>
+</html>
