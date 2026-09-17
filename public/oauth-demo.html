@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OAuth demo &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main>
+  <div class="card">
+    <h1>Mini OAuth authorize flow</h1>
+    <p class="hint">You must be logged in for this to work &mdash; the browser
+      needs your <code>vm_token</code> session cookie to hit
+      <code>/oauth/authorize</code>.</p>
+    <form id="authorize-form">
+      <label for="client_id">client_id</label>
+      <input id="client_id" name="client_id" value="vulnmart-demo-client" />
+
+      <label for="redirect_uri">redirect_uri</label>
+      <input id="redirect_uri" name="redirect_uri" value="/oauth-callback.html" />
+
+      <label for="state">state</label>
+      <input id="state" name="state" value="demo-state-123" />
+
+      <button type="submit">Start authorize flow</button>
+    </form>
+    <p class="hint">
+      Try changing <code>redirect_uri</code> to an attacker-controlled origin
+      (e.g. <code>https://example.com/</code>) &mdash; the server will happily
+      redirect the authorization code there with no allowlist check.
+    </p>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('authorize-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const clientId = document.getElementById('client_id').value;
+  const redirectUri = document.getElementById('redirect_uri').value;
+  const state = document.getElementById('state').value;
+  const url = `/oauth/authorize?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${encodeURIComponent(state)}`;
+  window.location.href = url;
+});
+</script>
+</body>
+</html>

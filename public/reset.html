@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Reset password &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main>
+  <div class="card">
+    <h1>Request a reset link</h1>
+    <form id="request-form">
+      <label for="email">Account email</label>
+      <input id="email" name="email" type="email" required />
+      <button type="submit">Send reset link</button>
+    </form>
+    <div id="request-msg" class="msg"></div>
+    <p class="hint">
+      Email delivery is mocked in this demo &mdash; the token/link is returned
+      directly in the API response below instead of being emailed.
+    </p>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h1>Set a new password</h1>
+    <form id="confirm-form">
+      <label for="token">Reset token</label>
+      <input id="token" name="token" required />
+
+      <label for="newPassword">New password</label>
+      <input id="newPassword" name="newPassword" type="password" required />
+
+      <button type="submit">Update password</button>
+    </form>
+    <div id="confirm-msg" class="msg"></div>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+if (params.get('token')) {
+  document.getElementById('token').value = params.get('token');
+}
+
+document.getElementById('request-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('request-msg');
+  const email = document.getElementById('email').value;
+  try {
+    const data = await API.request('/api/auth/password-reset/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    showMessage(msg, JSON.stringify(data, null, 2), 'ok');
+    document.getElementById('token').value = data.token;
+  } catch (err) {
+    showMessage(msg, err.message, 'error');
+  }
+});
+
+document.getElementById('confirm-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('confirm-msg');
+  const token = document.getElementById('token').value;
+  const newPassword = document.getElementById('newPassword').value;
+  try {
+    const data = await API.request('/api/auth/password-reset/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    });
+    showMessage(msg, data.message, 'ok');
+  } catch (err) {
+    showMessage(msg, err.message, 'error');
+  }
+});
+</script>
+</body>
+</html>

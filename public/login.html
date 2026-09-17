@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Login &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main>
+  <div class="card">
+    <h1>Log in</h1>
+    <form id="login-form">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required />
+
+      <button type="submit">Log in</button>
+    </form>
+    <div id="msg" class="msg"></div>
+    <p class="hint">
+      Forgot your password? <a href="/reset.html">Reset it</a>.<br />
+      Demo admin: admin@vulnmart.test / Password123!
+    </p>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try {
+    const data = await API.request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    API.setToken(data.token);
+    showMessage(msg, `Welcome back, ${data.user.name}!`, 'ok');
+    setTimeout(() => (window.location.href = '/profile.html'), 500);
+  } catch (err) {
+    showMessage(msg, err.message, 'error');
+  }
+});
+</script>
+</body>
+</html>

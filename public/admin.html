@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Admin &middot; VulnMart Auth</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div class="banner">FOR AUTHORIZED SECURITY EDUCATION ONLY &mdash; DO NOT DEPLOY PUBLICLY</div>
+<header class="site">
+  <a class="brand" href="/">VulnMart Auth</a>
+  <nav class="site" id="site-nav"></nav>
+</header>
+<main class="wide">
+  <div class="card">
+    <h1>Admin &middot; users</h1>
+    <div id="content">Loading...</div>
+  </div>
+</main>
+<script src="/js/api.js"></script>
+<script>
+async function loadUsers() {
+  const content = document.getElementById('content');
+  try {
+    const users = await API.request('/api/admin/users');
+    const rows = users.map(u => `<tr><td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.role}</td></tr>`).join('');
+    content.innerHTML = `<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr></thead><tbody>${rows}</tbody></table>`;
+  } catch (err) {
+    content.textContent = err.status === 403
+      ? 'Access denied: your token does not carry the admin role.'
+      : err.message;
+    if (err.status === 401) window.location.href = '/login.html';
+  }
+}
+loadUsers();
+</script>
+</body>
+</html>
